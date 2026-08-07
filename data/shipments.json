@@ -1,1 +1,82 @@
-{}
+{
+  "1024": {
+    "shipment_id": "1024",
+    "status": "out_for_delivery",
+    "location": "Central London delivery hub",
+    "eta": "today before 6 PM",
+    "carrier": "Nordport Last Mile",
+    "last_update": "2026-08-07T09:12:00Z"
+  },
+  "2070": {
+    "shipment_id": "2070",
+    "status": "in_transit",
+    "location": "on the A2 motorway between Rotterdam and Cologne",
+    "eta": "tomorrow, August 8, morning window",
+    "carrier": "Nordport Long Haul",
+    "last_update": "2026-08-07T07:40:00Z"
+  },
+  "3120": {
+    "shipment_id": "3120",
+    "status": "delivered",
+    "location": "delivered in New York, Brooklyn",
+    "eta": "delivered on August 6 at 12:40 PM",
+    "carrier": "Nordport Last Mile",
+    "last_update": "2026-08-06T12:40:00Z"
+  },
+  "4088": {
+    "shipment_id": "4088",
+    "status": "exception",
+    "location": "held at the Chicago sorting hub",
+    "eta": "to be confirmed once the incident is resolved",
+    "carrier": "Nordport Long Haul",
+    "last_update": "2026-08-07T08:05:00Z"
+  },
+  "5200": {
+    "shipment_id": "5200",
+    "status": "customs_hold",
+    "location": "at JFK customs, New York",
+    "eta": "pending customs clearance",
+    "carrier": "Nordport International",
+    "last_update": "2026-08-07T06:20:00Z"
+  },
+  "6310": {
+    "shipment_id": "6310",
+    "status": "out_for_delivery",
+    "location": "Madrid, Vallecas delivery center",
+    "eta": "today between 4 and 8 PM",
+    "carrier": "Nordport Last Mile",
+    "last_update": "2026-08-07T09:30:00Z"
+  },
+  "7145": {
+    "shipment_id": "7145",
+    "status": "in_transit",
+    "location": "in transit between Paris and Lyon",
+    "eta": "August 9, afternoon window",
+    "carrier": "Nordport Long Haul",
+    "last_update": "2026-08-07T05:15:00Z"
+  },
+  "8090": {
+    "shipment_id": "8090",
+    "status": "delivered",
+    "location": "delivered in Toronto, downtown",
+    "eta": "delivered on August 5 at 3:20 PM",
+    "carrier": "Nordport Last Mile",
+    "last_update": "2026-08-05T15:20:00Z"
+  },
+  "9033": {
+    "shipment_id": "9033",
+    "status": "exception",
+    "location": "address issue in Dublin; awaiting a corrected address",
+    "eta": "on hold until the address is confirmed",
+    "carrier": "Nordport Last Mile",
+    "last_update": "2026-08-07T10:05:00Z"
+  },
+  "1180": {
+    "shipment_id": "1180",
+    "status": "in_transit",
+    "location": "at the Amsterdam distribution center",
+    "eta": "August 8, afternoon window",
+    "carrier": "Nordport Express",
+    "last_update": "2026-08-07T04:50:00Z"
+  }
+}

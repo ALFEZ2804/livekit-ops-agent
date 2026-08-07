@@ -15,8 +15,6 @@ dependencies = [
     "pydantic-settings~=2.0",
     # Logging estructurado con redacción de secretos.
     "structlog>=24",
-    # Retries solo en red propia (health-check / extensiones).
-    "tenacity~=9.0",
     # RAG local por defecto: embeddings ONNX CPU (sin torch) + álgebra en numpy.
     "fastembed~=0.7",
     "numpy>=1.26",

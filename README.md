@@ -7,7 +7,7 @@ interna. Todo el pipeline queda instrumentado con métricas por turno y cubierto
 automáticas.
 
 Pipeline de voz: **STT** Deepgram · **LLM** Anthropic/Claude · **TTS** ElevenLabs ·
-**VAD** Silero · **turn detector** local del plugin (con fallback a `turn_detection="stt"`).
+**VAD** Silero · **turn detector** local multilingüe del plugin.
 
 > Fase 1 (este repo): corre **en local con `console`**, sin cuenta de LiveKit Cloud.
 > Fase 2 (documentada abajo): worker en LiveKit Cloud vía `dev` / `start`.
@@ -74,6 +74,12 @@ uv run ruff check .    # lint
 uv run ruff format .   # formato
 uv run mypy            # tipos (config en pyproject.toml)
 ```
+
+Las **evals** (`test_uses_tool` / `test_rag_answers` / `test_no_hallucination`) conducen el
+`OpsAgent` real en modo texto (`session.run` + `expect().judge`) y llaman al LLM real de
+Anthropic. Si `ANTHROPIC_API_KEY` está vacía en el `.env`, se **saltan** (no fallan), así
+`uv run pytest` queda verde en CI/headless; con la clave puesta, se ejecutan y juzgan. El RAG
+de las evals usa el `Bm25Retriever` determinista, sin red ni descarga de modelos.
 
 ## RAG local (sin key de embeddings de pago)
 

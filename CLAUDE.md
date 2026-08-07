@@ -13,8 +13,8 @@ para la take-home de HappyRobot. La fuente de verdad del alcance es `SPEC.md`.
   (un solo paquete con extras, NO cinco `livekit-plugins-*` sueltos).
   STT Deepgram · LLM Anthropic/Claude · TTS ElevenLabs · VAD Silero · turn detector local.
 - Config: **pydantic-settings 2.x** (`BaseSettings`) + **pydantic 2.x**. Logging:
-  **structlog**. Retries: **tenacity 9.x** (solo en red propia). RAG: **fastembed**
-  (ONNX CPU, sin torch) + **numpy**, con **rank-bm25** como fallback determinista.
+  **structlog**. RAG: **fastembed** (ONNX CPU, sin torch) + **numpy**, con
+  **rank-bm25** como fallback determinista.
 - Lint/format: **ruff**. Tipos: **mypy** (estable, config en `pyproject.toml`).
 - Despliegue: fase 1 `console` local. Fase 2 (documentada, no ejecutada) worker en
   LiveKit Cloud vía `dev`/`start`, alojado en **Railway** (proceso con estado; NO Vercel).
@@ -46,8 +46,24 @@ Solo lo no obvio:
   Protocol: `EmbeddingRetriever` (fastembed, runtime) y `Bm25Retriever` (offline/CI/fallback).
 - `data/` es contenido, no código: `shipments.json` (dataset fijo) y `docs/*.md` (corpus RAG).
 
-Estado actual: **andamiaje**. Los módulos son stubs con docstring; la lógica se implementa
-por bloques. `agent.py` ya arranca `console` sin errores (entrypoint mínimo que solo conecta).
+Estado actual: **MVP completo (fase 1)**. Hechos: `agent.py` (plugins + `OpsAgent` **con las
+tres tools registradas** + `AgentSession` con `AgentDeps` como `userdata` + `_build_deps`
+[EmbeddingRetriever por defecto, fallback a BM25 logueado] + saludo + preflight), `prompts.py`,
+`observability/metrics.py` (`MetricsReporter`: línea `turn` por turno con latencias
+STT/LLM/TTS y tokens + resumen al cierre), el dominio de envíos (`tools/shipments.py`) y el
+RAG local (`rag/index.py` chunking por sección + `rag/retriever.py` con `EmbeddingRetriever`
+fastembed por defecto y `Bm25Retriever` determinista tras el `Retriever` Protocol; abstención
+por umbral vía `select_relevant`), las tres `@function_tool` (`lookup_shipment` / `search_docs`
+/ `end_call` en `tools/agent_tools.py`) y `deps.AgentDeps` (`shipments` + `retriever` +
+`settings`). `console` arranca la ida y vuelta STT→LLM→TTS con tools + RAG operativos.
+
+Evals (`session.run` + `expect().judge`) en `conftest.py` + `test_uses_tool.py` /
+`test_rag_answers.py` / `test_no_hallucination.py`: ejercitan el `OpsAgent` real en **modo
+texto sin audio** (fixture `session`), con `AgentDeps` deterministas (dataset fijo +
+`Bm25Retriever` offline) y asserts deterministas (tool llamada, campos exactos) junto a los
+juzgados. Helpers de eventos en `tests/evalutils.py`. Usan el LLM real de Anthropic: si
+`ANTHROPIC_API_KEY` no tiene valor en el `.env`, las evals se **saltan** (no fallan) para que
+`uv run pytest` quede verde en CI/headless; con la clave puesta, corren y juzgan de verdad.
 
 ## Flujo de trabajo obligatorio
 Aplícalo sin que Alberto lo pida. Trabaja solo y sin revisión humana.
@@ -93,18 +109,29 @@ Aplícalo sin que Alberto lo pida. Trabaja solo y sin revisión humana.
 - **Modelos ONNX locales**: el turn detector y Silero VAD descargan modelos la primera vez.
   Antes del primer `console` con sesión real hay que correr `uv run ops-agent download-files`
   o el arranque falla al no encontrarlos. Los `.onnx` están gitignored.
+- **Modelo de embeddings del RAG (fastembed)**: `EmbeddingRetriever` descarga
+  `paraphrase-multilingual-MiniLM-L12-v2` (ONNX) la primera vez que se construye; sin red
+  falla, por eso CI y el test determinista (`test_retriever.py`) van sobre `Bm25Retriever` y
+  el caso de embeddings se **salta** si el modelo no está cacheado. La caché por defecto de
+  fastembed cae en un dir temporal; el wiring de runtime puede fijar `cache_dir` a una ruta
+  estable (caché gitignored). El umbral de coseno de abstención está calibrado en
+  `DEFAULT_EMBEDDING_MIN_SCORE = 0.30` (cubiertas >~0.40, fuera de dominio <~0.14).
 - **Claves del `.env`**: hoy el `.env` tiene las `LIVEKIT_*` rellenas pero **Deepgram,
-  Anthropic y ElevenLabs VACÍAS**. El `console` de andamiaje arranca igual porque el
-  entrypoint aún no construye plugins; en cuanto se implemente la sesión, Alberto debe
-  pegar esas claves (valores de `demo-pilot`) o la autenticación fallará.
+  Anthropic y ElevenLabs VACÍAS** (incluidos `ELEVENLABS_VOICE_ID`/`ELEVENLABS_MODEL`).
+  Ya no es inocuo: el `entrypoint` construye el pipeline, y un preflight
+  (`_check_phase1_credentials`) **falla al arrancar con un `RuntimeError` que nombra las
+  claves vacías** antes de que el plugin reviente con un error opaco. Para un `console` en
+  vivo, Alberto debe pegar esas claves (valores de `demo-pilot`). Nota: `Settings` acepta
+  cadenas vacías en campos requeridos (son `str` válidos); por eso el preflight vive en
+  `agent.py` y no en la validación de `config.py`.
 - **Deepgram, doble nombre**: el canónico es `DEEPGRAM_API_KEY`; el código acepta
   `DEEPGRAM_KEY` como fallback (en Karumi la var se llamaba así).
 - **hatchling** exige que exista `README.md` (campo `readme` del `pyproject.toml`) o el
   build del paquete falla. Layout `src/`: el paquete se declara en
   `[tool.hatch.build.targets.wheel] packages = ["src/ops_agent"]`.
-- **mypy** puede emitir una *note* de "unused section" para los overrides de `fastembed.*`/
-  `rank_bm25.*` mientras esos módulos no se importen. Es una note, no un error; desaparece
-  al implementar el RAG.
+- **mypy**: los overrides `ignore_missing_imports` de `livekit.*`/`fastembed.*`/`rank_bm25.*`
+  cubren librerías sin stubs y no rompen el chequeo de nuestro código. numpy sí trae tipos
+  (`numpy.typing.NDArray`), por eso las matrices del retriever van tipadas.
 
 ## No tocar
 - `.env` — secretos reales, gitignored. Nunca lo commitees ni pegues sus valores en un chat.
