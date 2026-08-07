@@ -1,0 +1,25 @@
+# Secretos — nunca versionar
+.env
+.env.local
+.env.*.local
+
+# Entorno virtual / uv
+.venv/
+__pycache__/
+*.py[cod]
+
+# Cachés de tooling
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# Modelos descargados por plugins (turn detector, etc.)
+*.onnx
+
+# Caché de modelos de fastembed
+.fastembed_cache/
+fastembed_cache/
+
+# Artefactos de build del paquete
+dist/
+*.egg-info/

@@ -1,0 +1,79 @@
+[project]
+name = "livekit-ops-agent"
+version = "0.1.0"
+description = "Agente de voz de operaciones (logística ficticia) sobre LiveKit Agents: tool de envíos + RAG local, instrumentado y con evals."
+readme = "README.md"
+requires-python = ">=3.11"
+authors = [{ name = "Alberto" }]
+
+dependencies = [
+    # Voz end-to-end: un solo paquete con extras (NO plugins sueltos).
+    # STT Deepgram · LLM Anthropic · TTS ElevenLabs · VAD Silero · turn detector local.
+    "livekit-agents[deepgram,anthropic,elevenlabs,silero,turn-detector]>=1.0,<2",
+    # Config y validación en las fronteras. BaseSettings vive en pydantic-settings.
+    "pydantic~=2.0",
+    "pydantic-settings~=2.0",
+    # Logging estructurado con redacción de secretos.
+    "structlog>=24",
+    # Retries solo en red propia (health-check / extensiones).
+    "tenacity~=9.0",
+    # RAG local por defecto: embeddings ONNX CPU (sin torch) + álgebra en numpy.
+    "fastembed~=0.7",
+    "numpy>=1.26",
+    # RAG determinista / offline (CI y fallback) tras el mismo Protocol.
+    "rank-bm25~=0.2",
+]
+
+[project.scripts]
+ops-agent = "ops_agent.agent:main"
+
+[dependency-groups]
+dev = [
+    "ruff>=0.6",
+    "mypy>=1.11",
+    "pytest~=8.0",
+    "pytest-asyncio~=0.24",
+]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/ops_agent"]
+
+# --- Lint / format --------------------------------------------------------------
+[tool.ruff]
+target-version = "py312"
+line-length = 100
+src = ["src", "tests"]
+
+[tool.ruff.lint]
+select = [
+    "E", "W",    # pycodestyle
+    "F",         # pyflakes
+    "I",         # isort
+    "N",         # pep8-naming
+    "UP",        # pyupgrade
+    "B",         # flake8-bugbear
+    "ASYNC",     # flake8-async
+    "SIM",       # flake8-simplify
+    "RUF",       # ruff-specific
+]
+
+# --- Tipos ----------------------------------------------------------------------
+[tool.mypy]
+python_version = "3.12"
+strict = true
+warn_unused_configs = true
+files = ["src", "tests"]
+
+# Librerías externas sin stubs: no rompen el chequeo de NUESTRO código.
+[[tool.mypy.overrides]]
+module = ["livekit.*", "fastembed.*", "rank_bm25.*"]
+ignore_missing_imports = true
+
+# --- Tests ----------------------------------------------------------------------
+[tool.pytest.ini_options]
+asyncio_mode = "auto"
+testpaths = ["tests"]
