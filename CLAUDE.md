@@ -1,11 +1,7 @@
 # livekit-ops-agent
 
 ## Qué es
-Agente de voz de operaciones para una empresa de logística ficticia sobre **LiveKit
-Agents 1.x**. Atiende una llamada por voz, consulta el estado de un envío con una tool y
-responde preguntas de procedimiento con RAG local sobre docs internos. Instrumentado con
-métricas por turno y cubierto por evals. Doble propósito: preparación para Karumi y base
-para la take-home de HappyRobot. La fuente de verdad del alcance es `SPEC.md`.
+Agente de voz de operaciones para una empresa de logística ficticia, construido con LiveKit Agents 1.x. Consulta envíos mediante una herramienta y responde preguntas de procedimiento con RAG local. Incluye métricas por turno y evaluaciones automatizadas. La fuente de verdad del alcance es `SPEC.md`.
 
 ## Stack
 - **CPython 3.12** (requires-python `>=3.11`), gestionado con **uv** (`uv.lock` commiteado).
@@ -116,16 +112,9 @@ Aplícalo sin que Alberto lo pida. Trabaja solo y sin revisión humana.
   fastembed cae en un dir temporal; el wiring de runtime puede fijar `cache_dir` a una ruta
   estable (caché gitignored). El umbral de coseno de abstención está calibrado en
   `DEFAULT_EMBEDDING_MIN_SCORE = 0.30` (cubiertas >~0.40, fuera de dominio <~0.14).
-- **Claves del `.env`**: hoy el `.env` tiene las `LIVEKIT_*` rellenas pero **Deepgram,
-  Anthropic y ElevenLabs VACÍAS** (incluidos `ELEVENLABS_VOICE_ID`/`ELEVENLABS_MODEL`).
-  Ya no es inocuo: el `entrypoint` construye el pipeline, y un preflight
-  (`_check_phase1_credentials`) **falla al arrancar con un `RuntimeError` que nombra las
-  claves vacías** antes de que el plugin reviente con un error opaco. Para un `console` en
-  vivo, Alberto debe pegar esas claves (valores de `demo-pilot`). Nota: `Settings` acepta
-  cadenas vacías en campos requeridos (son `str` válidos); por eso el preflight vive en
-  `agent.py` y no en la validación de `config.py`.
-- **Deepgram, doble nombre**: el canónico es `DEEPGRAM_API_KEY`; el código acepta
-  `DEEPGRAM_KEY` como fallback (en Karumi la var se llamaba así).
+- **Credenciales:** configura las variables necesarias en `.env` local antes de ejecutar. El fichero real está gitignored; usa `.env.example` como plantilla.
+
+- **Deepgram:** el nombre canónico es `DEEPGRAM_API_KEY`; el código acepta `DEEPGRAM_KEY` como alias.
 - **hatchling** exige que exista `README.md` (campo `readme` del `pyproject.toml`) o el
   build del paquete falla. Layout `src/`: el paquete se declara en
   `[tool.hatch.build.targets.wheel] packages = ["src/ops_agent"]`.
