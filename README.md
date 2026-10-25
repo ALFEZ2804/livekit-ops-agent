@@ -1,4 +1,4 @@
-# livekit-ops-agent
+# Logistics Voice Agent
 
 Agente de voz de operaciones para una empresa de logística ficticia, construido sobre
 **LiveKit Agents 1.x**. Atiende una llamada por voz, consulta el estado de un envío con
