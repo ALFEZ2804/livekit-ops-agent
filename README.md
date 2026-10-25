@@ -61,3 +61,6 @@ The automated evaluation tests use Anthropic when a key is available and are ski
 ## Current scope
 
 The logistics company and shipment records are fictional. This repository does not include a production deployment or a customer-facing web interface. LiveKit Cloud and Railway steps are not presented as completed deployments.
+
+
+See [ARCHITECTURE.md](ARCHITECTURE.md) for implementation details.
