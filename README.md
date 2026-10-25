@@ -16,7 +16,7 @@ Pipeline de voz: **STT** Deepgram · **LLM** Anthropic/Claude · **TTS** ElevenL
 
 ## Requisitos
 
-- **Windows** (probado en Windows 11), fuera de OneDrive para no sincronizar `.venv`.
+- **Windows 11** y `uv`.
 - **[uv](https://docs.astral.sh/uv/)** como gestor de entorno y dependencias.
   Si no lo tienes: `pip install uv` (o el instalador oficial de Astral).
 - **Python 3.12** — uv lo aprovisiona solo a partir de `.python-version` si falta.
@@ -59,7 +59,7 @@ Los nombres son los **canónicos** que lee el código (`BaseSettings`). Están e
 
 | Variable | Uso | Obligatoria en fase 1 |
 | --- | --- | --- |
-| `DEEPGRAM_API_KEY` | STT Deepgram. (En Karumi la var era `DEEPGRAM_KEY`; aquí el valor es el mismo, el nombre está normalizado.) | Sí |
+| `DEEPGRAM_API_KEY` | STT Deepgram. (En  la var era `DEEPGRAM_KEY`; aquí el valor es el mismo, el nombre está normalizado.) | Sí |
 | `ANTHROPIC_API_KEY` | LLM Claude. | Sí |
 | `CLAUDE_MODEL` | Id de modelo Claude. Vacío = default de baja latencia del código. | No |
 | `ELEVENLABS_API_KEY` / `ELEVENLABS_VOICE_ID` / `ELEVENLABS_MODEL` | TTS ElevenLabs. | Sí |
