@@ -3,14 +3,10 @@
 ## 0. Metadatos
 
 - **Proyecto:** `livekit-ops-agent`
-- **Root:** `C:\Users\ALBERTO\livekit-ops-agent` (Windows nativo, fuera de OneDrive)
+- **Entorno:** Windows 11, Python 3.12 y `uv`.
 - **Fecha:** 2026-08-07
 - **Autor:** Alberto
-- **Doble propósito:**
-  - Preparación técnica para la **semana presencial de Karumi** (17–21 ago).
-  - Base directa para la **take-home + system design de HappyRobot** (temas dados por
-    el referral: LiveKit · observability · turn detector · RAG · poner agentes en
-    producción, funcionar ≠ escalar · evals).
+- **Propósito:** proyecto personal de portfolio sobre agentes de voz aplicados a operaciones.
 
 ## 1. Objetivo
 
@@ -25,14 +21,9 @@ tiene, sin depender de una cuenta de LiveKit Cloud.
 
 ## 2. Contexto y motivación
 
-- **HappyRobot** contrata Forward Deployed Engineers para agentes de IA en operaciones
-  enterprise (logística: DHL, Kuehne+Nagel…). Su stack usa LiveKit. El examen valora
-  velocidad con la herramienta y los seis temas listados arriba.
-- Se **reutilizan credenciales** del proyecto `demo-pilot` de Karumi
-  (`\\wsl.localhost\Ubuntu\home\alberto\demo-pilot\.env`): Deepgram, Anthropic,
-  ElevenLabs y Supabase ya están disponibles.
-- No hay credenciales de LiveKit Cloud todavía → el desarrollo y las evals se hacen en
-  **console mode**, que corre localmente sin conectarse a LiveKit.
+El proyecto explora patrones de agentes de voz para operaciones logísticas: consultas mediante herramientas, respuestas basadas en documentación, evaluaciones automatizadas y observabilidad. Las credenciales de los proveedores se configuran localmente en `.env`, que está excluido de Git.
+
+La primera fase se desarrolla y evalúa en modo `console`; la integración con LiveKit Cloud se describe como una fase posterior.
 
 ## 3. Alcance funcional
 
@@ -54,7 +45,7 @@ logística ficticia. Comportamientos:
 
 ## 4. Restricciones y entorno
 
-- **SO/ubicación**: Windows nativo, `C:\Users\ALBERTO\livekit-ops-agent`, fuera de
+- **Sistema:** Windows 11.
   OneDrive (evita que se sincronice `.venv`).
 - **Toolchain**: Python 3.11+ gestionado con **uv** (`uv.lock` commiteado), **ruff**
   (lint+format), **mypy** (o `ty`) en el código de aplicación.
@@ -67,7 +58,7 @@ logística ficticia. Comportamientos:
   que el código debe leer **exactamente** (vía `BaseSettings`). No los renombres ni
   asumas otros:
   - LiveKit (fase 2): `LIVEKIT_URL`, `LIVEKIT_API_KEY`, `LIVEKIT_API_SECRET`.
-  - STT: `DEEPGRAM_API_KEY` (¡ojo!, en Karumi la var se llama `DEEPGRAM_KEY`; aquí es
+  - STT: `DEEPGRAM_API_KEY` (¡ojo!, en  la var se llama `DEEPGRAM_KEY`; aquí es
     `DEEPGRAM_API_KEY` — Alberto copia el valor, el nombre ya está normalizado).
   - LLM: `ANTHROPIC_API_KEY`, `CLAUDE_MODEL` (opcional; default de latencia baja en el
     código si viene vacío).
@@ -169,7 +160,7 @@ modificación.
 
 - **Sin frontend web propio**: se usa console mode; el playground/telephony de LiveKit
   Cloud es opcional y documentado, no implementado.
-- **Sin aprendizaje en vivo de una web** (eso es `demo-pilot`/Karumi). Aquí el dominio es
+- **Sin aprendizaje en vivo de una web** (no forma parte del alcance de este proyecto). Aquí el dominio es
   fijo y conocido.
 - **Sin deployment gestionado 24/7 ni infra de escalado**: probar el agente en una room
   de LiveKit Cloud vía `dev`/`start` SÍ entra (fase 2); lo que queda fuera es el
@@ -179,7 +170,7 @@ modificación.
 
 ## 9. Riesgos conocidos
 
-- **Nombre de variable** `DEEPGRAM_KEY` (Karumi) vs `DEEPGRAM_API_KEY` (LiveKit):
+- **Nombre de variable:** se utiliza `DEEPGRAM_API_KEY` como nombre canónico;
   mapear explícitamente en config o el STT no autentica.
 - **Embeddings sin key de pago**: si se va a Supabase/pgvector hace falta generar
   embeddings; sin OpenAI/Voyage, usar embeddings locales o keyword retrieval.
